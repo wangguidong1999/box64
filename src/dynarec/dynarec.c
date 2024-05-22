@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <setjmp.h>
+#include <pthread.h>
 
 #include "debug.h"
 #include "box64context.h"
@@ -87,6 +88,20 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
 }
 #endif
 
+
+typedef struct {
+    x64emu_t* emu;
+    int thread_id;
+    int num_threads;
+} thread_data_t;
+
+void* thread_func(void* arg) {
+    thread_data_t* data = (thread_data_t*)arg;
+    Run(data->emu, 0); 
+    return NULL;
+}
+
+
 void DynaCall(x64emu_t* emu, uintptr_t addr)
 {
     uint64_t old_rsp = R_RSP;
@@ -148,6 +163,16 @@ void DynaRun(x64emu_t* emu)
     #endif
     emu->flags.jmpbuf_ready = 0;
 
+		int num_threads = 4;
+    pthread_t threads[num_threads];
+    thread_data_t thread_data[num_threads];
+
+    for (int i = 0; i < num_threads; i++) {
+        thread_data[i].emu = emu;
+        thread_data[i].thread_id = i;
+        thread_data[i].num_threads = num_threads;
+    }
+
     while(!(emu->quit)) {
         if(!emu->jmpbuf || (emu->flags.need_jmpbuf && emu->jmpbuf!=jmpbuf)) {
             emu->jmpbuf = jmpbuf;
@@ -177,7 +202,23 @@ void DynaRun(x64emu_t* emu)
 #ifdef DYNAREC
         if(!box64_dynarec)
 #endif
-            Run(emu, 0);
+      {
+            // 创建并启动线程
+            for (int i = 0; i < num_threads; i++) {
+                if (pthread_create(&threads[i], NULL, thread_func, &thread_data[i]) != 0) {
+                    perror("pthread_create");
+                    exit(EXIT_FAILURE);
+                }
+            }
+
+            // 等待所有线程完成
+            for (int i = 0; i < num_threads; i++) {
+                if (pthread_join(threads[i], NULL) != 0) {
+                    perror("pthread_join");
+                    exit(EXIT_FAILURE);
+                }
+            }
+        }    //Run(emu, 0);
 #ifdef DYNAREC
         else {
             int is32bits = (emu->segs[_CS]==0x23);
