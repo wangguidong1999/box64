@@ -228,6 +228,7 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
         return NULL;
     }
     void* ret = FillBlock64(block, filladdr, (addr==filladdr)?0:1, is32bits);
+		//printf("FillBlock64 called with block at x64_addr: %p (address: %p), filladdr: %p, alternate: %d, is32bits: %d, return: %p\n", block->x64_addr, (void*)block, (void*)filladdr, (addr == filladdr) ? 0 : 1, is32bits, ret);
     if(!ret) {
         dynarec_log(LOG_DEBUG, "Fillblock of block %p for %p returned an error\n", block, (void*)addr);
         customFree(block);

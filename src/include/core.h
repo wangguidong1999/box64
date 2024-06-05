@@ -4,6 +4,7 @@
 #include "custommem.h"
 #include "callback.h"
 #include "library.h"
+#include "thpool.h"
 
 // exec : 0 = lib, 1 = exec
 int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elfheader_t** elfheader, int exec);

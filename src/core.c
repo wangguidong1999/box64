@@ -39,6 +39,7 @@
 #include "elfs/elfloader_private.h"
 #include "library.h"
 #include "core.h"
+#include "thpool.h"
 
 box64context_t *my_context = NULL;
 int box64_quit = 0;
