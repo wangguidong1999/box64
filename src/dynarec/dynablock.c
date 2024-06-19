@@ -293,6 +293,15 @@ dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int is32bits)
         if(!need_lock)
             mutex_unlock(&my_context->mutex_dyndump);
     } 
+		    if (db){
+				        uintptr_t nextBlockStart = (uintptr_t)(db->x64_addr) + db->x64_size;
+								        dynablock_t *nextBlock = getDB(nextBlockStart);
+												if (!nextBlock){
+												        int createPreTranBlock = 1;
+												        nextBlock = internalDBGetBlock(emu, nextBlockStart, nextBlockStart, createPreTranBlock, 1, is32bits);
+																		  }
+							 }
+				
     if(!db || !db->block || !db->done)
         emu->test.test = 0;
     return db;

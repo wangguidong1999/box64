@@ -88,7 +88,7 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
 }
 #endif
 
-
+/*
 typedef struct {
     x64emu_t* emu;
     int thread_id;
@@ -100,7 +100,7 @@ void* thread_func(void* arg) {
     Run(data->emu, 0); 
     return NULL;
 }
-
+*/
 
 void DynaCall(x64emu_t* emu, uintptr_t addr)
 {
@@ -163,7 +163,7 @@ void DynaRun(x64emu_t* emu)
     #endif
     emu->flags.jmpbuf_ready = 0;
 
-		int num_threads = 4;
+/*		int num_threads = 4;
     pthread_t threads[num_threads];
     thread_data_t thread_data[num_threads];
 
@@ -172,7 +172,7 @@ void DynaRun(x64emu_t* emu)
         thread_data[i].thread_id = i;
         thread_data[i].num_threads = num_threads;
     }
-
+*/
     while(!(emu->quit)) {
         if(!emu->jmpbuf || (emu->flags.need_jmpbuf && emu->jmpbuf!=jmpbuf)) {
             emu->jmpbuf = jmpbuf;
@@ -202,7 +202,7 @@ void DynaRun(x64emu_t* emu)
 #ifdef DYNAREC
         if(!box64_dynarec)
 #endif
-      {
+     /* {
             // 创建并启动线程
             for (int i = 0; i < num_threads; i++) {
                 if (pthread_create(&threads[i], NULL, thread_func, &thread_data[i]) != 0) {
@@ -218,7 +218,8 @@ void DynaRun(x64emu_t* emu)
                     exit(EXIT_FAILURE);
                 }
             }
-        }    //Run(emu, 0);
+        }*/   
+					Run(emu, 0);
 #ifdef DYNAREC
         else {
             int is32bits = (emu->segs[_CS]==0x23);
