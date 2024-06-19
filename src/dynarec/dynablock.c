@@ -26,6 +26,33 @@
 #include "custommem.h"
 #include "khash.h"
 #include "rbtree.h"
+#include "thpool.h"
+
+extern threadpool thpool;
+static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t filladdr, int create, int need_lock, int is32bits);
+
+typedef struct {
+	    x64emu_t* emu;
+			uintptr_t nextBlockStart;
+			int is32bits;
+} next_block_task_t;
+
+void process_next_block(void* arg) {
+	    next_block_task_t* task = (next_block_task_t*)arg;
+			x64emu_t* emu = task->emu;
+			uintptr_t nextBlockStart = task->nextBlockStart;
+			int is32bits = task->is32bits;
+
+			dynablock_t *nextBlock = getDB(nextBlockStart);
+			if (!nextBlock) {
+				int createPreTranBlock = 1;
+				nextBlock = internalDBGetBlock(emu, nextBlockStart, nextBlockStart, createPreTranBlock, 1, is32bits);
+			}
+
+			free(task);
+}
+
+
 
 uint32_t X31_hash_code(void* addr, int len)
 {
@@ -293,7 +320,7 @@ dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int is32bits)
         if(!need_lock)
             mutex_unlock(&my_context->mutex_dyndump);
     } 
-		    if (db){
+/*		    if (db){
 				        uintptr_t nextBlockStart = (uintptr_t)(db->x64_addr) + db->x64_size;
 								        dynablock_t *nextBlock = getDB(nextBlockStart);
 												if (!nextBlock){
@@ -301,7 +328,19 @@ dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int is32bits)
 												        nextBlock = internalDBGetBlock(emu, nextBlockStart, nextBlockStart, createPreTranBlock, 1, is32bits);
 																		  }
 							 }
-				
+*/
+
+		//add pretran task to thradpool
+    if (db) {
+			        next_block_task_t* task = (next_block_task_t*)malloc(sizeof(next_block_task_t));
+							task->emu = emu;
+							task->nextBlockStart = (uintptr_t)(db->x64_addr) + db->x64_size;
+							task->is32bits = is32bits;
+
+							thpool_add_work(thpool, process_next_block, task);
+		}
+
+
     if(!db || !db->block || !db->done)
         emu->test.test = 0;
     return db;

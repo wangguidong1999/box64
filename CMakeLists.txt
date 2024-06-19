@@ -932,6 +932,9 @@ if(DYNAREC)
 endif()
 target_link_libraries(${BOX64} interpreter)
 
+add_library(thpool STATIC src/thpool.c)
+target_link_libraries(${BOX64} thpool)
+
 if(${CMAKE_VERSION} VERSION_LESS "3.13")
     if(NOT NOLOADADDR)
         if(CMAKE_C_COMPILER_ID STREQUAL "Clang" OR WITH_MOLD)
