@@ -35,6 +35,8 @@
 #include "signals.h"
 #include "x64tls.h"
 
+extern double dynarun_time;
+
 typedef struct x64_sigaction_s x64_sigaction_t;
 typedef struct x64_stack_s x64_stack_t;
 
@@ -390,7 +392,13 @@ static int clone_fn(void* arg)
     x64emu_t *emu = (x64emu_t*)arg;
     thread_set_emu(emu);
     R_RAX = 0;
+		
+		clock_t start = clock();
     DynaRun(emu);
+		clock_t end = clock();
+		double cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+		dynarun_time += cpu_time_used;
+
     int ret = R_EAX;
     FreeX64Emu(&emu);
     my_context->stack_clone_used = 0;

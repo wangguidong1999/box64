@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #ifdef HAVE_TRACE
 #include <unistd.h>
 #include <sys/syscall.h>
@@ -27,6 +28,8 @@
 
 #define PARITY(x)   (((emu->x64emu_parity_tab[(x) / 32] >> ((x) % 32)) & 1) == 0)
 #define XOR2(x) 	(((x) ^ ((x)>>1)) & 0x1)
+
+extern double dynarun_time;
 
 #ifdef ANDROID
 void EXPORT my___libc_init(x64emu_t* emu, void* raw_args , void (*onexit)(void) , int (*main)(int, char**, char**), void const * const structors )
@@ -69,7 +72,12 @@ int32_t EXPORT my___libc_start_main(x64emu_t* emu, int (*main) (int, char * *, c
         SetRDI(emu, (uint64_t)my_context->argc);
         R_RIP=(uint64_t)*init;
         printf_dump(LOG_DEBUG, "Calling init(%p) from __libc_start_main\n", *init);
+				clock_t start = clock();
         DynaRun(emu);
+				clock_t end = clock();
+				double cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+				dynarun_time += cpu_time_used;
+
         if(emu->error)  // any error, don't bother with more
             return 0;
         SetRSP(emu, GetRBP(emu));   // restore RSP
@@ -96,8 +104,12 @@ int32_t EXPORT my___libc_start_main(x64emu_t* emu, int (*main) (int, char * *, c
     SetRSI(emu, (uint64_t)my_context->argv);
     SetRDI(emu, (uint64_t)my_context->argc);
     R_RIP=(uint64_t)main;
-
+		
+		clock_t start = clock();
     DynaRun(emu);
+		clock_t end = clock();
+		double cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+		dynarun_time += cpu_time_used;
 
     if(!emu->quit) {
         SetRSP(emu, GetRBP(emu));   // restore RSP

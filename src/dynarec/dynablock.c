@@ -330,7 +330,7 @@ dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int is32bits)
 							 }
 */
 
-		//add pretran task to thradpool
+		//add pretran task to threadpool
     if (db) {
 			        next_block_task_t* task = (next_block_task_t*)malloc(sizeof(next_block_task_t));
 							task->emu = emu;

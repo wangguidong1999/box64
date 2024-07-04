@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <setjmp.h>
 #include <pthread.h>
+#include <time.h>
 
 #include "debug.h"
 #include "box64context.h"
@@ -25,6 +26,10 @@
 #ifdef HAVE_TRACE
 #include "elfloader.h"
 #endif
+
+extern double dynarun_time;
+extern double interpreter_time;
+extern double dynarec_time;
 
 #ifdef DYNAREC
 uintptr_t getX64Address(dynablock_t* db, uintptr_t arm_addr);
@@ -125,7 +130,12 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
     PushExit(emu);
     R_RIP = addr;
     emu->df = d_none;
+		clock_t start = clock();
     DynaRun(emu);
+		clock_t end = clock();
+		double cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC; 
+		dynarun_time += cpu_time_used;
+
     emu->quit = 0;  // reset Quit flags...
     emu->df = d_none;
     emu->uc_link = old_uc_link;
@@ -231,11 +241,21 @@ void DynaRun(x64emu_t* emu)
                 dynarec_log(LOG_DEBUG, "%04d|Running Interpreter @%p, emu=%p\n", GetTID(), (void*)R_RIP, emu);
                 if(box64_dynarec_test)
                     emu->test.clean = 0;
+								clock_t start = clock();
                 Run(emu, 1);
+								clock_t end = clock();
+								double cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+								interpreter_time += cpu_time_used;
+
             } else {
                 dynarec_log(LOG_DEBUG, "%04d|Running DynaRec Block @%p (%p) of %d x64 insts (hash=0x%x) emu=%p\n", GetTID(), (void*)R_RIP, block->block, block->isize, block->hash, emu);
                 // block is here, let's run it!
+								clock_t start = clock();
                 native_prolog(emu, block->block);
+								clock_t end = clock();
+								double cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+								dynarec_time += cpu_time_used;
+
                 extern int running32bits;
                 if(emu->segs[_CS]==0x23)
                     running32bits = 1;

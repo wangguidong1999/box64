@@ -2225,7 +2225,15 @@ int emulate(x64emu_t* emu, elfheader_t* elf_header)
     ResetFlags(emu);
     Push64(emu, my_context->exit_bridge);  // push to pop it just after
     SetRDX(emu, Pop64(emu));    // RDX is exit function
+																
+		clock_t start_run, end_run;
+		double run_time;
+		start_run = clock();
     Run(emu, 0);
+		end_run = clock();
+		run_time = (double)(end_run - start_run) / CLOCKS_PER_SEC;
+		printf("run: %f seconds\n", run_time);
+
     // Get EAX
     int ret = GetEAX(emu);
     printf_log(LOG_DEBUG, "Emulation finished, EAX=%d\n", ret);
