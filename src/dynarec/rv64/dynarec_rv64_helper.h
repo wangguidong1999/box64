@@ -1245,6 +1245,7 @@ void* rv64_next(void);
 #define jump_to_epilog      STEPNAME(jump_to_epilog)
 #define jump_to_epilog_fast STEPNAME(jump_to_epilog_fast)
 #define jump_to_next        STEPNAME(jump_to_next)
+#define jump_to_next_jmped  STEPNAME(jump_to_next_jmped)
 #define ret_to_epilog       STEPNAME(ret_to_epilog)
 #define retn_to_epilog      STEPNAME(retn_to_epilog)
 #define iret_to_epilog      STEPNAME(iret_to_epilog)
