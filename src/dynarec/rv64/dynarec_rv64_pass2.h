@@ -39,7 +39,7 @@
         EMIT(0);                     \
     }
 
-#define LOOKUP_TABLE(A, V) do {                   \
+#define LOOKUP_TABLE(A, V) do {                        \
     uintptr_t addr = (V);                              \
     int32_t offset_lo = SPLIT12((uintptr_t)addr);      \
     EMIT(0);                                           \
