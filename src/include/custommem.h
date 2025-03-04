@@ -49,6 +49,7 @@ void setJumpTableDefaultRef64(void* addr, void* jmp);
 int isJumpTableDefault64(void* addr);
 uintptr_t getJumpTable64(void);
 uintptr_t getJumpTable32(void);
+uintptr_t getLookupTable(void);
 uintptr_t getJumpTableAddress64(uintptr_t addr);
 uintptr_t getJumpAddress64(uintptr_t addr);
 
