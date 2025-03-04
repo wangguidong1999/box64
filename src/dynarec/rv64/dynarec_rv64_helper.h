@@ -1122,6 +1122,9 @@
 #ifndef FTABLE64
 #define FTABLE64(A, V)
 #endif
+#ifndef LOOKUP_TABLE
+#define LOOKUP_TABLE(A, V)
+#endif
 
 #define ARCH_INIT() \
     SMSTART();      \
