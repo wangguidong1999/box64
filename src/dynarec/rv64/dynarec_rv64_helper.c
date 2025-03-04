@@ -519,7 +519,9 @@ void jump_to_epilog_fast(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst)
 #error TODO!
 #endif
 void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, int is32bits)
-{
+{   
+    int64_t j64;
+    MAYUSE(j64);
     MAYUSE(dyn);
     MAYUSE(ninst);
     MESSAGE(LOG_DUMP, "Jump to next\n");
