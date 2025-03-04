@@ -539,7 +539,7 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
 
         // --- 快速路径开始 ---
         // 计算索引：xRIP 低12位 <<4
-        ANDI(x3, xRIP, 0xFFF);       // x5 = 低12位
+        ANDI(x3, xRIP, 0x7FF);       // x5 = 低12位
         SLLI(x3, x3, 4);             // 索引偏移量
 
         // 加载查找表基址到 x4
@@ -554,9 +554,10 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
         LD(x4, x5, 8);               // x4 = 表中 HPC
 
         // 比较 GPC 是否匹配
-        BNE_MARK(xRIP, x4);
+        // BNE_MARK(xRIP, x4);
+        BNE(xRIP, x4, 4);
         JALR((dyn->insts[ninst].x64.has_callret ? xRA : xZR), x5);
-        MARK;
+        // MARK;
         TABLE64(x3, tbl);
         if (rv64_xtheadbb) {
             if (!is32bits) {
