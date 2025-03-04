@@ -534,6 +534,27 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
         NOTEST(x2);
         uintptr_t tbl = is32bits ? getJumpTable32() : getJumpTable64();
         MAYUSE(tbl);
+
+        // --- 快速路径开始 ---
+        // 计算索引：xRIP 低12位 <<4
+        ANDI(x3, xRIP, 0xFFF);       // x5 = 低12位
+        SLLI(x3, x3, 4);             // 索引偏移量
+
+        // 加载查找表基址到 x4
+        uintptr_t lookup_table = getLookupTable();
+        LOOKUP_TABLE(x4, lookup_table);     // x6 = fast_path_table 基址
+
+        // 计算 GPC_addr = x4 + x3 保存到x5
+        ADD(x5, x4, x3);             // x5 = &fast_path_table[索引]
+
+        // 加载 GPC 和 HPC
+        LD(x3, x5, 0);               // x3 = 表中 GPC
+        LD(x4, x5, 8);               // x4 = 表中 HPC
+
+        // 比较 GPC 是否匹配
+        BNE_MARK(xRIP, x4);
+        JALR((dyn->insts[ninst].x64.has_callret ? xRA : xZR), x5);
+
         TABLE64(x3, tbl);
         if (rv64_xtheadbb) {
             if (!is32bits) {
@@ -550,6 +571,10 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
             TH_EXTU(x2, xRIP, JMPTABL_START0 + JMPTABL_SHIFT0 - 1, JMPTABL_START0);
             TH_ADDSL(x3, x3, x2, 3);
             LD(x2, x3, 0);
+            MARK;
+            // --- 更新查找表 ---
+            SD(xRIP, x5, 0);            // 存储当前 GPC
+            SD(x2, x5, 8);              // 存储新 HPC
         } else {
             if (!is32bits) {
                 SRLI(x2, xRIP, JMPTABL_START3);
@@ -586,6 +611,10 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
                 ADD(x3, x3, x2);
             }
             LD(x2, x3, 0);
+            MARK;
+            // --- 更新查找表 ---
+            SD(xRIP, x5, 0);            // 存储当前 GPC
+            SD(x2, x5, 8);              // 存储新 HPC
         }
     } else {
         uintptr_t p = getJumpTableAddress64(ip);

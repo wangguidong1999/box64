@@ -42,6 +42,15 @@
         AUIPC(x1, SPLIT20(val64offset));            \
         FLD(A, x1, SPLIT12(val64offset));           \
     }
+#define LOOKUP_TABLE(A, V) do {                   \
+    uintptr_t addr = (V);                              \
+    int32_t offset_hi = SPLIT20((uintptr_t)addr);      \
+    int32_t offset_lo = SPLIT12((uintptr_t)addr);      \
+    AUIPC(A, offset_hi);                               \
+    if (offset_lo != 0) {                              \
+        ADDI(A, A, offset_lo);                         \
+    }                                                  \
+} while(0)
 
 #define DEFAULT_VECTOR                                                                                                                  \
     if (BOX64ENV(dynarec_log) >= LOG_INFO || BOX64DRENV(dynarec_dump) || BOX64ENV(dynarec_missing) == 2) {                              \

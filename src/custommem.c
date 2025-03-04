@@ -47,6 +47,11 @@ static uintptr_t***        box64_jmptbl3[1<<JMPTABL_SHIFT3];
 static uintptr_t**         box64_jmptbldefault2[1<<JMPTABL_SHIFT2];
 static uintptr_t*          box64_jmptbldefault1[1<<JMPTABL_SHIFT1];
 static uintptr_t           box64_jmptbldefault0[1<<JMPTABL_SHIFT0];
+
+//LookupTable for fast indirect jump
+#define LOOKUP_TABLE_SIZE 4096
+static uintptr_t box64_lookup_table[LOOKUP_TABLE_SIZE][2] = {0};
+
 // lock addresses
 KHASH_SET_INIT_INT64(lockaddress)
 static kh_lockaddress_t    *lockaddress = NULL;
@@ -1275,6 +1280,10 @@ uintptr_t getJumpTable32()
     #else
     return (uintptr_t)box64_jmptbl3[0];
     #endif
+}
+
+uintptr_t getLookupTable() {
+    return (uintptr_t)box64_lookup_table;
 }
 
 uintptr_t getJumpTableAddress64(uintptr_t addr)
