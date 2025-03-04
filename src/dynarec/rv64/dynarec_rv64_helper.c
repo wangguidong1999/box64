@@ -556,7 +556,7 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
         // 比较 GPC 是否匹配
         BNE_MARK(xRIP, x4);
         JALR((dyn->insts[ninst].x64.has_callret ? xRA : xZR), x5);
-
+        MARK;
         TABLE64(x3, tbl);
         if (rv64_xtheadbb) {
             if (!is32bits) {
@@ -573,7 +573,7 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
             TH_EXTU(x2, xRIP, JMPTABL_START0 + JMPTABL_SHIFT0 - 1, JMPTABL_START0);
             TH_ADDSL(x3, x3, x2, 3);
             LD(x2, x3, 0);
-            MARK;
+            // MARK;
             // --- 更新查找表 ---
             SD(xRIP, x5, 0);            // 存储当前 GPC
             SD(x2, x5, 8);              // 存储新 HPC
@@ -613,7 +613,7 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
                 ADD(x3, x3, x2);
             }
             LD(x2, x3, 0);
-            MARK;
+            // MARK;
             // --- 更新查找表 ---
             SD(xRIP, x5, 0);            // 存储当前 GPC
             SD(x2, x5, 8);              // 存储新 HPC
