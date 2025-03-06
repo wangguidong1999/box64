@@ -42,18 +42,28 @@
         AUIPC(x1, SPLIT20(val64offset));            \
         FLD(A, x1, SPLIT12(val64offset));           \
     }
-#define LOOKUP_TABLE(A, V) do {                     \
-    uintptr_t addr = (V);                           \
-    uint32_t offset_hi = SPLIT20((uintptr_t)addr);  \
-    uint32_t offset_lo = SPLIT12((uintptr_t)addr);  \
-    if ((offset_lo & 0x800) != 0) {                 \
-        offset_hi += 1;                             \
-    }                                               \
-    LUI(A, offset_hi);                              \
-    if (offset_lo != 0) {                           \
-        ADDI(A, A, offset_lo);                      \
-    }                                               \
+#define LOOKUP_TABLE(A, V) do {                   \
+    uintptr_t addr = (V);                              \
+    uint32_t offset_hi = SPLIT20((uintptr_t)addr);      \
+    uint32_t offset_lo = SPLIT12((uintptr_t)addr);      \
+    AUIPC(A, offset_hi);                               \
+    if (offset_lo != 0) {                              \
+        ADDI(A, A, offset_lo);                         \
+    }                                                  \
 } while(0)
+
+// #define LOOKUP_TABLE(A, V) do {                     \
+//     uintptr_t addr = (V);                           \
+//     uint32_t offset_hi = SPLIT20((uintptr_t)addr);  \
+//     uint32_t offset_lo = SPLIT12((uintptr_t)addr);  \
+//     if ((offset_lo & 0x800) != 0) {                 \
+//         offset_hi += 1;                             \
+//     }                                               \
+//     LUI(A, offset_hi);                              \
+//     if (offset_lo != 0) {                           \
+//         ADDI(A, A, offset_lo);                      \
+//     }                                               \
+// } while(0)
 
 
 #define DEFAULT_VECTOR                                                                                                                  \
