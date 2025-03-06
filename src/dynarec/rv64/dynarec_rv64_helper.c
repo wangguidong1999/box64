@@ -546,7 +546,7 @@ void jump_to_next_jmped(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, i
 
         // 加载查找表基址到 x4
         uintptr_t lookup_table = getLookupTable();
-        LOOKUP_TABLE(x4, lookup_table);     // x6 = fast_path_table 基址
+        LOOKUP_TABLE(x4, lookup_table);     // x4 = fast_path_table 基址
 
         // 计算 GPC_addr = x4 + x3 保存到x5
         ADD(x5, x4, x3);             // x5 = &fast_path_table[索引]
