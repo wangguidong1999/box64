@@ -539,8 +539,10 @@ void jump_to_next_jmped(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, i
 
         // --- 快速路径开始 ---
         // 计算索引：xRIP 低12位 <<4
-        ANDI(x3, xRIP, 0x7FF);       // x5 = 低12位
-        SLLI(x3, x3, 4);             // 索引偏移量
+        // ANDI(x3, xRIP, 0xFFF);       // x5 = 低12位
+        SLLI(x3, xRIP, 52);
+        SRLI(x3, x3, 48);//取xRIP的低12位
+        // SLLI(x3, x3, 4);             // 索引偏移量
 
         // 加载查找表基址到 x4
         uintptr_t lookup_table = getLookupTable();

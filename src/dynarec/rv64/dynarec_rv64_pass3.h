@@ -46,7 +46,7 @@
     uintptr_t addr = (V);                              \
     uint32_t offset_hi = SPLIT20((uintptr_t)addr);      \
     uint32_t offset_lo = SPLIT12((uintptr_t)addr);      \
-    AUIPC(A, offset_hi);                               \
+    LUI(A, offset_hi);                               \
     if (offset_lo != 0) {                              \
         ADDI(A, A, offset_lo);                         \
     }                                                  \

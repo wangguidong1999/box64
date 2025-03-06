@@ -1283,6 +1283,9 @@ uintptr_t getJumpTable32()
 }
 
 uintptr_t getLookupTable() {
+    printf("box64_lookup_table address: %p\n", box64_lookup_table);
+    printf("box64_lookup_table[0][0] address: %p\n",  (void*)&box64_lookup_table[0][0]);
+    printf("box64_lookup_table[4095][1] address: %p\n",  (void*)&box64_lookup_table[4095][1]);
     return (uintptr_t)box64_lookup_table;
 }
 
