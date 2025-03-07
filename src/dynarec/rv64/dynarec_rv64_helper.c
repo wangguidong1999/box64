@@ -553,13 +553,12 @@ void jump_to_next_jmped(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, i
 
         // 加载 GPC 和 HPC
         LD(x3, x5, 0);               // x3 = 表中 GPC
-        LD(x4, x5, 8);               // x4 = 表中 HPC
+        // LD(x4, x5, 8);               // x4 = 表中 HPC
 
-        // 比较 GPC 是否匹配
-        // BNE_MARK(xRIP, x4);
-        BNE(xRIP, x3, 8);
+        BNE(xRIP, x3, 12);          //比较GPC是否匹配
+        LD(x4, x5, 8);               // x4 = 表中 HPC
         JALR((dyn->insts[ninst].x64.has_callret ? xRA : xZR), x4);
-        // MARK;
+
         TABLE64(x3, tbl);
         if (rv64_xtheadbb) {
             if (!is32bits) {
