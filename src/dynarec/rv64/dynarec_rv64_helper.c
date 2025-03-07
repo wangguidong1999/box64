@@ -557,8 +557,8 @@ void jump_to_next_jmped(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, i
 
         // 比较 GPC 是否匹配
         // BNE_MARK(xRIP, x4);
-        // BNE(xRIP, x3, 4);
-        // JALR((dyn->insts[ninst].x64.has_callret ? xRA : xZR), x4);
+        BNE(xRIP, x3, 8);
+        JALR((dyn->insts[ninst].x64.has_callret ? xRA : xZR), x4);
         // MARK;
         TABLE64(x3, tbl);
         if (rv64_xtheadbb) {
@@ -578,8 +578,8 @@ void jump_to_next_jmped(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, i
             LD(x2, x3, 0);
             // MARK;
             // --- 更新查找表 ---
-            // SD(xRIP, x5, 0);            // 存储当前 GPC
-            // SD(x2, x5, 8);              // 存储新 HPC
+            SD(xRIP, x5, 0);            // 存储当前 GPC
+            SD(x2, x5, 8);              // 存储新 HPC
         } else {
             if (!is32bits) {
                 SRLI(x2, xRIP, JMPTABL_START3);
@@ -618,8 +618,8 @@ void jump_to_next_jmped(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, i
             LD(x2, x3, 0);
             // MARK;
             // --- 更新查找表 ---
-            // SD(xRIP, x5, 0);            // 存储当前 GPC
-            // SD(x2, x5, 8);              // 存储新 HPC
+            SD(xRIP, x5, 0);            // 存储当前 GPC
+            SD(x2, x5, 8);              // 存储新 HPC
         }
     } else {
         uintptr_t p = getJumpTableAddress64(ip);
