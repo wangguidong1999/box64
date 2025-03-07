@@ -1283,10 +1283,19 @@ uintptr_t getJumpTable32()
 }
 
 uintptr_t getLookupTable() {
-    printf("box64_lookup_table address: %p\n", box64_lookup_table);
-    printf("box64_lookup_table[0][0] address: %p\n",  (void*)&box64_lookup_table[0][0]);
-    printf("box64_lookup_table[4095][1] address: %p\n",  (void*)&box64_lookup_table[4095][1]);
+    // printf("box64_lookup_table address: %p\n", box64_lookup_table);
+    // printf("box64_lookup_table[0][0] address: %p\n",  (void*)&box64_lookup_table[0][0]);
+    // printf("box64_lookup_table[4095][1] address: %p\n",  (void*)&box64_lookup_table[4095][1]);
     return (uintptr_t)box64_lookup_table;
+}
+
+void printLookupTable() {
+    for (int i = 0; i < LOOKUP_TABLE_SIZE; i++) {
+        // 打印数组中的每一项
+        printf("Entry %d: [0x%lx, 0x%lx]\n", i, 
+               (unsigned long)box64_lookup_table[i][0], 
+               (unsigned long)box64_lookup_table[i][1]);
+    }
 }
 
 uintptr_t getJumpTableAddress64(uintptr_t addr)
