@@ -555,7 +555,7 @@ void jump_to_next_jmped(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, i
         LD(x3, x5, 0);               // x3 = 表中 GPC
         // LD(x4, x5, 8);               // x4 = 表中 HPC
 
-        BNE(xRIP, x3, 12);          //比较GPC是否匹配
+        BNE(xRIP, x3, 32);          //比较GPC是否匹配
 
         // GPC匹配，hit计数器++
         uintptr_t hit_addr = getLookupTableHitAddr();
