@@ -1571,6 +1571,8 @@ int emulate(x64emu_t* emu, elfheader_t* elf_header)
         SET_BOX64ENV(dynarec_perf_map_fd, -1);
     }
 #endif
-    printLookupTable();    //打印lookup_table
+    // printLookupTable();    //打印lookup_table
+    // printHitRate();        //打印命中率
+    print_LookupTable_stats(); //打印lookup_table的统计信息
     return ret;
 }

@@ -52,6 +52,9 @@ static uintptr_t           box64_jmptbldefault0[1<<JMPTABL_SHIFT0];
 #define LOOKUP_TABLE_SIZE 4096
 static uintptr_t box64_lookup_table[LOOKUP_TABLE_SIZE][2] = {0};
 
+uintptr_t box64_lookup_hit = 0;
+uintptr_t box64_lookup_miss = 0;
+
 // lock addresses
 KHASH_SET_INIT_INT64(lockaddress)
 static kh_lockaddress_t    *lockaddress = NULL;
@@ -1289,13 +1292,35 @@ uintptr_t getLookupTable() {
     return (uintptr_t)box64_lookup_table;
 }
 
-void printLookupTable() {
-    for (int i = 0; i < LOOKUP_TABLE_SIZE; i++) {
-        // 打印数组中的每一项
-        printf("Entry %d: [0x%lx, 0x%lx]\n", i, 
-               (unsigned long)box64_lookup_table[i][0], 
-               (unsigned long)box64_lookup_table[i][1]);
+uintptr_t getLookupTableHitAddr() {
+    return (uintptr_t)&box64_lookup_hit;
+}
+
+uintptr_t getLookupTableMissAddr() {
+    return (uintptr_t)&box64_lookup_miss;
+}
+
+void print_LookupTable_stats() {
+    uintptr_t hit = box64_lookup_hit;
+    uintptr_t miss = box64_lookup_miss;
+    uintptr_t total = hit + miss;
+
+    int used = 0;
+    for (int i = 0; i < LOOKUP_TABLE_SIZE; ++i) {
+        if (box64_lookup_table[i][0] != 0)
+            ++used;
     }
+
+    float hit_rate = total ? (100.0f * hit / total) : 0.0f;
+    float usage_rate = 100.0f * used / LOOKUP_TABLE_SIZE;
+
+    printf("======= Lookup Table Stats =======\n");
+    printf("  Hit count     : %lu\n", hit);
+    printf("  Miss count    : %lu\n", miss);
+    printf("  Total lookups : %lu\n", total);
+    printf("  Hit rate      : %.2f%%\n", hit_rate);
+    printf("  Used entries  : %d / %d (%.2f%%)\n", used, LOOKUP_TABLE_SIZE, usage_rate);
+    printf("==================================\n");
 }
 
 uintptr_t getJumpTableAddress64(uintptr_t addr)

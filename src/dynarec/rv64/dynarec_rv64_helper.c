@@ -556,6 +556,15 @@ void jump_to_next_jmped(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, i
         // LD(x4, x5, 8);               // x4 = 表中 HPC
 
         BNE(xRIP, x3, 12);          //比较GPC是否匹配
+
+        // GPC匹配，hit计数器++
+        uintptr_t hit_addr = getLookupTableHitAddr();
+        MOV64x(x3, hit_addr);   //x3保存hit计数器地址
+        LD(x4, x3, 0);
+        ADDI(x4, x4, 1);
+        SD(x4, x3, 0);
+        
+        // 跳转到HPC
         LD(x4, x5, 8);               // x4 = 表中 HPC
         JALR((dyn->insts[ninst].x64.has_callret ? xRA : xZR), x4);
 
@@ -579,6 +588,13 @@ void jump_to_next_jmped(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, i
             // --- 更新查找表 ---
             SD(xRIP, x5, 0);            // 存储当前 GPC
             SD(x2, x5, 8);              // 存储新 HPC
+            
+            // GPC不匹配，miss计数器++
+            uintptr_t miss_addr = getLookupTableMissAddr();
+            MOV64x(x3, miss_addr);   //x3保存miss计数器地址
+            LD(x4, x3, 0);
+            ADDI(x4, x4, 1);
+            SD(x4, x3, 0);
         } else {
             if (!is32bits) {
                 SRLI(x2, xRIP, JMPTABL_START3);
@@ -619,6 +635,13 @@ void jump_to_next_jmped(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, i
             // --- 更新查找表 ---
             SD(xRIP, x5, 0);            // 存储当前 GPC
             SD(x2, x5, 8);              // 存储新 HPC
+            
+            // GPC不匹配，miss计数器++
+            uintptr_t miss_addr = getLookupTableMissAddr();
+            MOV64x(x3, miss_addr);   //x3保存miss计数器地址
+            LD(x4, x3, 0);
+            ADDI(x4, x4, 1);
+            SD(x4, x3, 0);
         }
     } else {
         uintptr_t p = getJumpTableAddress64(ip);

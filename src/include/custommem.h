@@ -50,7 +50,11 @@ int isJumpTableDefault64(void* addr);
 uintptr_t getJumpTable64(void);
 uintptr_t getJumpTable32(void);
 uintptr_t getLookupTable(void);
+uintptr_t getLookupTableHitAddr(void);
+uintptr_t getLookupTableMissAddr(void);
 void printLookupTable(void);
+void printHitRate(void);
+void print_LookupTable_stats(void);
 uintptr_t getJumpTableAddress64(uintptr_t addr);
 uintptr_t getJumpAddress64(uintptr_t addr);
 
